@@ -1,0 +1,32 @@
+name: Daily Earnings Analysis
+
+on:
+  workflow_dispatch: 
+  schedule:
+    - cron: '30 9 * * 1-5'
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: pip install yfinance pandas
+
+      - name: Run script
+        run: python earnings_script.py
+
+      - name: Commit and push changes
+        run: |
+          git config --global user.name "EarningsBot"
+          git config --global user.email "bot@github.com"
+          git add reports/*.csv || true
+          git commit -m "Update earnings report" || true
+          git push
